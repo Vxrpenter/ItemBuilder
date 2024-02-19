@@ -23,6 +23,8 @@ import java.util.*;
  * <p>ItemBuilder is a tiny Java API for Spigot and Paper that helps you to create ItemStack instance way much easier.</p>
  * <p>You're free to use this class and contribute to the project.</p>
  * <p>For any question, info or bug, please contact me from my GtiHub profile down below.</p>
+ * <p></p>
+ * <p>Slightly modified by Vxrpenter</p>
  *
  * @author RusterX16
  * @link <a href="https://github.com/RusterX16/ItemBuilder">GitHub</a>
@@ -445,7 +447,35 @@ public class ItemBuilder {
         item.setItemMeta(armor);
         return this;
     }
-
+    /**
+     * Color the potion.<br>
+     * Only available for item that supports PotionMeta.
+     *
+     * @param color The color to apply
+     * @return the ItemBuilder
+     */
+    public ItemBuilder potionColor(Color color) {
+        PotionMeta potion = (PotionMeta) this.meta;
+        potion.setColor(color);
+        item.setItemMeta(potion);
+        return this;
+    }
+    /**
+     * Add effects to the item.<br>
+     * Only available for item that supports PotionMeta.
+     *
+     * @param effectType The effect to apply
+     * @param duration The duration of the effect
+     * @param amplifier The level of the effect
+     * @param overwrite Overwrite existing effects
+     * @return the ItemBuilder
+     */
+    public ItemBuilder customEffect(PotionEffectType effectType, int duration, int amplifier, boolean overwrite) {
+        PotionMeta potion = (PotionMeta) this.meta;
+        potion.addCustomEffect(new PotionEffect(effectType, duration, amplifier), overwrite);
+        item.setItemMeta(potion);
+        return this;
+    }
     /**
      * Set the item unbreakable
      *
