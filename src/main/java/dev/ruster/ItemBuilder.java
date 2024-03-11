@@ -1,11 +1,7 @@
-package dev.ruster;
+package dev.vxrp.playermanager.util;
 
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -14,6 +10,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -29,8 +28,6 @@ import java.util.*;
  * @author RusterX16
  * @link <a href="https://github.com/RusterX16/ItemBuilder">GitHub</a>
  */
-@ToString
-@EqualsAndHashCode
 @SuppressWarnings("unused")
 public class ItemBuilder {
 
@@ -47,11 +44,11 @@ public class ItemBuilder {
     private final ItemStack item;
     private final ItemMeta meta;
     private final Damageable damageable;
-    private final List<String> lore = new ArrayList<>();
+    private final List<Component> lore = new ArrayList<>();
     private final Set<ItemFlag> flags = new HashSet<>();
     private final Map<Enchantment, Integer> enchantments = new HashMap<>();
     private Material material;
-    private String displayName;
+    private Component displayName;
     private int amount;
     private short durability;
     private boolean unbreakable;
@@ -72,10 +69,10 @@ public class ItemBuilder {
 
         if (item.hasItemMeta()) {
             if (meta.hasDisplayName()) {
-                displayName = meta.getDisplayName();
+                displayName = meta.displayName();
             }
             if (meta.hasLore()) {
-                lore.addAll(Objects.requireNonNull(meta.getLore()));
+                lore.addAll(Objects.requireNonNull(meta.lore()));
             }
             flags.addAll(meta.getItemFlags());
             durability = (short) ((Damageable) meta).getDamage();
@@ -146,9 +143,9 @@ public class ItemBuilder {
      * @param displayName The name to display
      * @return The ItemBuilder
      */
-    public ItemBuilder displayName(String displayName) {
+    public ItemBuilder displayName(Component displayName) {
         this.displayName = displayName;
-        meta.setDisplayName(this.displayName);
+        meta.displayName(this.displayName);
         item.setItemMeta(meta);
         return this;
     }
@@ -159,9 +156,9 @@ public class ItemBuilder {
      * @param color The color
      * @return The ItemBuilder
      */
-    public ItemBuilder colorName(ChatColor color) {
-        displayName = color + displayName;
-        meta.setDisplayName(displayName);
+    public ItemBuilder colorName(MiniMessage color) {
+        displayName = MiniMessage.miniMessage().deserialize(String.valueOf(displayName));
+        meta.displayName(displayName);
         item.setItemMeta(meta);
         return this;
     }
@@ -173,10 +170,10 @@ public class ItemBuilder {
      * @param lore A collection of lines to set as lore
      * @return The ItemBuilder
      */
-    public ItemBuilder lore(@NotNull List<String> lore) {
+    public ItemBuilder lore(@NotNull List<Component> lore) {
         clearLore();
         this.lore.addAll(lore);
-        meta.setLore(this.lore);
+        meta.lore(this.lore);
         item.setItemMeta(meta);
         return this;
     }
@@ -188,7 +185,7 @@ public class ItemBuilder {
      * @param lines the lines set as lore
      * @return The ItemBuilder
      */
-    public ItemBuilder lore(String... lines) {
+    public ItemBuilder lore(Component... lines) {
         return lore(List.of(lines));
     }
 
@@ -198,9 +195,9 @@ public class ItemBuilder {
      * @param line The text to append
      * @return The ItemBuilder
      */
-    public ItemBuilder appendLoreLine(String line) {
+    public ItemBuilder appendLoreLine(Component line) {
         lore.add(line);
-        meta.setLore(lore);
+        meta.lore(lore);
         item.setItemMeta(meta);
         return this;
     }
@@ -213,13 +210,13 @@ public class ItemBuilder {
      * @param override <br><b>true</b> : replace existing line<br><b>false</b> : shifts the next elements
      * @return The ItemBuilder
      */
-    public ItemBuilder setLoreLine(int index, String line, boolean override) {
+    public ItemBuilder setLoreLine(int index, Component line, boolean override) {
         if (override) {
             lore.set(index, line);
         } else {
             lore.add(index, line);
         }
-        meta.setLore(lore);
+        meta.lore(lore);
         item.setItemMeta(meta);
         return this;
     }
@@ -232,7 +229,7 @@ public class ItemBuilder {
      * @param line  The text to display on lore
      * @return The ItemBuilder
      */
-    public ItemBuilder setLoreLine(int index, String line) {
+    public ItemBuilder setLoreLine(int index, Component line) {
         return setLoreLine(index, line, true);
     }
 
@@ -244,7 +241,7 @@ public class ItemBuilder {
      */
     public ItemBuilder removeLoreLine(int index) {
         lore.remove(index);
-        meta.setLore(lore);
+        meta.lore(lore);
         item.setItemMeta(meta);
         return this;
     }
@@ -255,9 +252,9 @@ public class ItemBuilder {
      * @param line The line to delete
      * @return The ItemBuilder
      */
-    public ItemBuilder removeLoreLine(String line) {
+    public ItemBuilder removeLoreLine(Component line) {
         lore.remove(line);
-        meta.setLore(lore);
+        meta.lore(lore);
         item.setItemMeta(meta);
         return this;
     }
@@ -270,7 +267,7 @@ public class ItemBuilder {
     @SuppressWarnings("UnusedReturnValue")
     public ItemBuilder clearLore() {
         lore.clear();
-        meta.setLore(lore);
+        meta.lore(lore);
         item.setItemMeta(meta);
         return this;
     }
@@ -539,7 +536,7 @@ public class ItemBuilder {
      *
      * @return The display name
      */
-    public String getDisplayName() {
+    public Component getDisplayName() {
         return displayName;
     }
 
@@ -557,7 +554,7 @@ public class ItemBuilder {
      *
      * @return The lore
      */
-    public List<String> getLore() {
+    public List<Component> getLore() {
         return lore;
     }
 
